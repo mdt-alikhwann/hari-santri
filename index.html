@@ -138,6 +138,9 @@
       <button id="zoomIn" class="btn-sm btn btn-outline-success"><i class="bi bi-zoom-in"></i></button>
       <button id="zoomOut" class="btn-sm btn btn-outline-success"><i class="bi bi-zoom-out"></i></button>
       <button id="rotate" class="btn-sm btn btn-outline-dark"><i class="bi bi-arrow-clockwise"></i></button>
+      <button id="flip" class="btn-sm btn btn-outline-secondary">
+  <i class="bi bi-arrow-left-right"></i>
+</button>
     </div>
 
     <!-- Filter foto -->
@@ -234,19 +237,25 @@ uploadtwb.addEventListener('change', (e) => {
 
     // Gambar ulang
     function draw() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      if (userImg) {
-        ctx.save();
-        ctx.translate(imgX, imgY);
-        ctx.rotate(imgRotation);
-        ctx.scale(imgScale, imgScale);
-        ctx.filter = `brightness(${brightness}) contrast(${contrast})`;
-        ctx.drawImage(userImg, -userImg.width / 2, -userImg.height / 2);
-        ctx.restore();
-      }
-      if (frameReady) ctx.drawImage(frame, 0, 0, canvas.width, canvas.height);
-    }
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+  // Gambar foto user (kalau ada)
+  if (userImg) {
+    ctx.save();
+    ctx.translate(imgX, imgY);
+    ctx.rotate(imgRotation);
+
+    // 🔥 Perubahan di sini:
+    ctx.scale(flipped ? -imgScale : imgScale, imgScale);
+    ctx.filter = `brightness(${brightness}) contrast(${contrast})`;
+
+    ctx.drawImage(userImg, -userImg.width / 2, -userImg.height / 2);
+    ctx.restore();
+  }
+
+  // Gambar frame overlay (tidak ikut ke-flip)
+  if (frameReady) ctx.drawImage(frame, 0, 0, canvas.width, canvas.height);
+}
     // Zoom & Rotate Buttons
     document.getElementById('zoomIn').onclick = () => { imgScale *= 1.02; draw(); };
     document.getElementById('zoomOut').onclick = () => { imgScale /= 1.02; draw(); };
@@ -259,7 +268,12 @@ rotateLeftBtn.onclick = () => { imgRotation -= Math.PI / 100; draw(); };
 
 // Sisipkan tombol di sebelum tombol reset
 document.getElementById('rotate').before(rotateLeftBtn);
+let flipped = false;
 
+document.getElementById('flip').onclick = () => {
+  flipped = !flipped;
+  draw();
+};
     // Reset Button
     document.getElementById('reset').onclick = () => {
       if (!userImg) return;
@@ -373,4 +387,4 @@ Saya sudah pasang overlay foto, giliran kamu sekarang`;
     });
   </script>
 </body>
-  </html>
+</html>
