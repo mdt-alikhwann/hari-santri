@@ -17,28 +17,22 @@
 
   <style>
     body {
-      font-family: 'Alan Sans', sans-serif;
-      margin: 0 auto;
-      min-height: 100vh;
-      
-      color: #333;
-      box-sizing: border-box;
-      overflow-x: hidden;
-    }
+  font-family: 'Alan Sans', sans-serif;
+  margin: 0 auto;
+  min-height: 100vh;
+  color: #333;
+  box-sizing: border-box;
+  overflow-x: hidden;
+  background: linear-gradient(135deg, #e6f7f1 0%, #d0f0ff 50%, #fffbe6 100%);
+}
 
     h3 {
       color: #004d40;
       letter-spacing: 0.5px;
     }
 
-    p.text-muted {
-      color: #6c757d !important;
-    }
-
-    /* Canvas Frame */
     #canvas {
       width: 100%;
-      height: auto;
       border: 2px dashed #a7b2b5;
       border-radius: 16px;
       background-color: #fff;
@@ -51,7 +45,6 @@
       box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
     }
 
-    /* File input */
     input[type="file"] {
       cursor: pointer;
       border: 1px solid #ccc !important;
@@ -64,7 +57,6 @@
       background-color: #f1fdf5 !important;
     }
 
-    /* Buttons */
     .btn {
       border-radius: 50px;
       padding: 0.6rem 1.4rem;
@@ -84,16 +76,16 @@
       box-shadow: 0 4px 12px rgba(25, 135, 84, 0.3);
     }
 
-    /* Footer */
-    .abu {
-      color: #6c757d;
+    .btn-outline-warning:hover {
+      background-color: #ffc107;
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(255, 193, 7, 0.3);
     }
 
     footer small {
       font-size: 10px;
     }
 
-    /* Simple fade animation */
     .fade-up {
       opacity: 0;
       transform: translateY(20px);
@@ -107,17 +99,14 @@
       }
     }
 
-    /* Responsive */
     @media (max-width: 576px) {
       h3 {
         font-size: 1.3rem;
       }
-
       .btn {
         font-size: 0.9rem;
         padding: 0.5rem 1.1rem;
       }
-
       #canvas {
         border-width: 1.5px;
       }
@@ -129,35 +118,66 @@
   <div class="container pt-5 px-3 text-center">
     <h3 class="mb-1 fw-bold">Hari Santri Nasional <span class="year"></span></h3>
     <div class="text-muted small">MDT Al-Ikhwan Margasari Sidareja</div>
-    <p class="mt-3 small text-muted mb-1">
-      Upload selfie terbaikmu disini
-    </p>
-    <div class="mb-3 mt-1 w-75 mx-auto text-center ">
-      <input type="file" id="uploadtwb" class="form-control fs-sm " accept="image/*">
+
+    <p class="mt-3 small text-muted mb-1">Upload selfie terbaikmu disini</p>
+    <div class="mb-3 mt-1 w-75 mx-auto text-center">
+      <input type="file" id="uploadtwb" class="form-control fs-sm" accept="image/*">
     </div>
 
     <canvas class="fade-up" id="canvas" width="1620" height="1620"></canvas>
 
-    <div class="mt-3 d-flex gap-2 justify-content-center fade-up">
-      <button id="download" class="btn btn-outline-primary"><i class="bi bi-download"></i> Download</button>
+    <!-- Kontrol tambahan -->
+    <div class="mt-3 d-flex gap-2 justify-content-center flex-wrap fade-up">
+      <button id="zoomIn" class="btn btn-outline-success"><i class="bi bi-zoom-in"></i></button>
+      <button id="zoomOut" class="btn btn-outline-success"><i class="bi bi-zoom-out"></i></button>
+      <button id="rotate" class="btn btn-outline-info"><i class="bi bi-arrow-clockwise"></i></button>
+      <button id="reset" class="btn btn-outline-secondary"><i class="bi bi-arrow-counterclockwise"></i> Reset</button>
+     <button id="download" class="btn btn-outline-primary">
+  <i class="bi bi-download"></i> Download
+</button>
       <button id="share" class="btn btn-outline-success"><i class="bi bi-share"></i> Bagikan</button>
+    </div>
+
+    <!-- Filter foto -->
+    <div class="mt-4 w-75 mx-auto text-center">
+      <label class="form-label small">Kecerahan</label>
+      <input type="range" id="brightness" min="0.5" max="1.5" step="0.001" value="1" class="form-range">
+      <label class="form-label small">Kontras</label>
+      <input type="range" id="contrast" min="0.5" max="1.5" step="0.001" value="1" class="form-range">
     </div>
   </div>
 
   <div class="text-center mt-5 mb-4">
-    <small class="abu">&copy; <span class="year"></span> MDT Al-Ikhwan</small>
+    <small class="text-muted">&copy; <span class="year"></span> MDT Al-Ikhwan</small>
   </div>
 
-  <!-- Tahun Otomatis -->
-  <script>
-    const yearElements = document.querySelectorAll('.year');
-    const currentYear = new Date().getFullYear();
-    yearElements.forEach(el => el.textContent = currentYear);
-  </script>
+  <!-- Modal Preview -->
+<div class="modal fade" id="previewModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="confirmModalLabel">Konfirmasi Download</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+      </div>
+      <img id="previewImage" src="" alt="" />
+      <div class="modal-body">
+        Jika sudah sesuai klik tombol "OK" untuk mendowload
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+        <button type="button" id="confirmDownload" class="btn btn-primary">OK</button>
+      </div>
+    </div>
+  </div>
+</div>
 
-  <!-- Semua fungsi asli tidak diubah -->
+  <!-- Script -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+
   <script>
-    //foto overlay 
+    // Tahun Otomatis
+    document.querySelectorAll('.year').forEach(el => el.textContent = new Date().getFullYear());
+
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
     const uploadtwb = document.getElementById('uploadtwb');
@@ -165,16 +185,18 @@
     const shareBtn = document.getElementById('share');
 
     const frame = new Image();
-    frame.src = './hsn2025.png'; // pastikan path benar
-    let frameReady = false;
-    frame.onload = () => { frameReady = true; draw(); };
+frame.src = 'hsn2025.png';
+let frameReady = false;
+frame.onload = () => { frameReady = true; draw(); };
 
-    let userImg = null;
-    let imgX = 0, imgY = 0;
-    let imgScale = 1;
-    let imgRotation = 0;
-    let original = {};
+let userImg = null;
+let imgX = 0, imgY = 0;
+let imgScale = 1;
+let imgRotation = 0;
+let original = {};
+let brightness = 1, contrast = 1;
 
+    // Upload Foto
     uploadtwb.addEventListener('change', (e) => {
       const file = e.target.files[0];
       if (!file) return;
@@ -189,12 +211,14 @@
           imgY = canvas.height / 2;
           original = { imgScale, imgRotation, imgX, imgY };
           draw();
+          localStorage.setItem('userImage', ev.target.result);
         };
         img.src = ev.target.result;
       };
       reader.readAsDataURL(file);
     });
 
+    // Gambar ulang
     function draw() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       if (userImg) {
@@ -202,46 +226,54 @@
         ctx.translate(imgX, imgY);
         ctx.rotate(imgRotation);
         ctx.scale(imgScale, imgScale);
+        ctx.filter = `brightness(${brightness}) contrast(${contrast})`;
         ctx.drawImage(userImg, -userImg.width / 2, -userImg.height / 2);
         ctx.restore();
       }
-      if (frameReady) {
-        ctx.drawImage(frame, 0, 0, canvas.width, canvas.height);
-      }
+      if (frameReady) ctx.drawImage(frame, 0, 0, canvas.width, canvas.height);
     }
 
-    // --- DESKTOP DRAG ---
-    let isDragging = false;
-    let startX = 0, startY = 0;
-    canvas.addEventListener('mousedown', (e) => {
+    // Zoom & Rotate Buttons
+    document.getElementById('zoomIn').onclick = () => { imgScale *= 1.02; draw(); };
+    document.getElementById('zoomOut').onclick = () => { imgScale /= 1.02; draw(); };
+    document.getElementById('rotate').onclick = () => { imgRotation += Math.PI / 100; draw(); };
+    // Tombol rotate ke kiri
+const rotateLeftBtn = document.createElement('button');
+rotateLeftBtn.className = 'btn btn-outline-info';
+rotateLeftBtn.innerHTML = '<i class="bi bi-arrow-counterclockwise"></i>';
+rotateLeftBtn.onclick = () => { imgRotation -= Math.PI / 100; draw(); };
+
+// Sisipkan tombol di sebelum tombol reset
+document.getElementById('reset').before(rotateLeftBtn);
+
+    // Reset Button
+    document.getElementById('reset').onclick = () => {
       if (!userImg) return;
-      isDragging = true;
-      startX = e.offsetX - imgX;
-      startY = e.offsetY - imgY;
-    });
-    canvas.addEventListener('mousemove', (e) => {
-      if (isDragging) {
-        imgX = e.offsetX - startX;
-        imgY = e.offsetY - startY;
-        draw();
-      }
-    });
+      imgScale = original.imgScale;
+      imgRotation = original.imgRotation;
+      imgX = original.imgX;
+      imgY = original.imgY;
+      brightness = 1;
+      contrast = 1;
+      document.getElementById('brightness').value = 1;
+      document.getElementById('contrast').value = 1;
+      draw();
+    };
+
+    // Filter Slider
+    document.getElementById('brightness').oninput = (e) => { brightness = e.target.value; draw(); };
+    document.getElementById('contrast').oninput = (e) => { contrast = e.target.value; draw(); };
+
+    // Mouse & Touch untuk drag dan zoom
+    let isDragging = false, startX = 0, startY = 0;
+    canvas.addEventListener('mousedown', (e) => { if (userImg) { isDragging = true; startX = e.offsetX - imgX; startY = e.offsetY - imgY; }});
+    canvas.addEventListener('mousemove', (e) => { if (isDragging) { imgX = e.offsetX - startX; imgY = e.offsetY - startY; draw(); }});
     canvas.addEventListener('mouseup', () => isDragging = false);
     canvas.addEventListener('mouseleave', () => isDragging = false);
-    canvas.addEventListener('wheel', (e) => {
-      if (!userImg) return;
-      e.preventDefault();
-      const factor = e.deltaY < 0 ? 1.05 : 0.95;
-      imgScale *= factor;
-      draw();
-    });
+    canvas.addEventListener('wheel', (e) => { if (userImg) { e.preventDefault(); imgScale *= e.deltaY < 0 ? 1.05 : 0.95; draw(); }});
 
-    // --- TOUCH GESTURE ---
-    let lastTouchDist = null;
-    let lastTouchAngle = null;
-    let isTouchDragging = false;
-    let touchStartX = 0, touchStartY = 0;
-
+    // Touch Gesture
+    let lastTouchDist = null, lastTouchAngle = null, isTouchDragging = false, touchStartX = 0, touchStartY = 0;
     canvas.addEventListener('touchstart', (e) => {
       if (!userImg) return;
       if (e.touches.length === 1) {
@@ -254,11 +286,9 @@
         lastTouchAngle = getTouchAngle(e.touches);
       }
     });
-
     canvas.addEventListener('touchmove', (e) => {
       if (!userImg) return;
       e.preventDefault();
-
       if (e.touches.length === 1 && isTouchDragging) {
         imgX = e.touches[0].clientX - touchStartX;
         imgY = e.touches[0].clientY - touchStartY;
@@ -266,81 +296,77 @@
       } else if (e.touches.length === 2) {
         const newDist = getTouchDistance(e.touches);
         const newAngle = getTouchAngle(e.touches);
-
         if (lastTouchDist) imgScale *= newDist / lastTouchDist;
         if (lastTouchAngle !== null) imgRotation += (newAngle - lastTouchAngle);
-
         lastTouchDist = newDist;
         lastTouchAngle = newAngle;
         draw();
       }
     });
-
-    canvas.addEventListener('touchend', () => {
-      lastTouchDist = null;
-      lastTouchAngle = null;
-      isTouchDragging = false;
-    });
+    canvas.addEventListener('touchend', () => { lastTouchDist = null; lastTouchAngle = null; isTouchDragging = false; });
 
     function getTouchDistance(touches) {
       const dx = touches[0].clientX - touches[1].clientX;
       const dy = touches[0].clientY - touches[1].clientY;
       return Math.sqrt(dx * dx + dy * dy);
     }
-
     function getTouchAngle(touches) {
       const dx = touches[1].clientX - touches[0].clientX;
       const dy = touches[1].clientY - touches[0].clientY;
       return Math.atan2(dy, dx);
     }
 
-    // --- DOWNLOAD ---
-    downloadBtn.addEventListener('click', () => {
-      const link = document.createElement('a');
-      link.download = 'HSN MDT AL-IKHWAN.png';
-      link.href = canvas.toDataURL('image/png');
-      link.click();
-    });
+    // Preview Sebelum Download
+// Tombol Download Utama -> buka modal preview
+downloadBtn.addEventListener('click', () => {
+  const dataURL = canvas.toDataURL('image/png');
+  document.getElementById('previewImage').src = dataURL;
+  const previewModal = new bootstrap.Modal(document.getElementById('previewModal'));
+  previewModal.show();
+  
+  // Tambahkan event listener ke tombol OK di modal
+  const confirmBtn = document.getElementById('confirmDownload');
+  confirmBtn.onclick = () => {
+    // Proses download dijalankan di sini
+    const link = document.createElement('a');
+    link.download = 'HSN MDT AL-IKHWAN.png';
+    link.href = dataURL;
+    link.click();
+    
+    // Tutup modal setelah download
+    previewModal.hide();
+  };
+});
 
-    // --- BAGIKAN ---
+    // Share Button
     shareBtn.addEventListener('click', async () => {
       const dataUrl = canvas.toDataURL('image/png');
       const blob = await (await fetch(dataUrl)).blob();
       const file = new File([blob], 'HSN MDT AL-IKHWAN.png', { type: 'image/png' });
-
       const shareTitle = 'Hari Santri Nasional 2025';
       const shareText = `🌿✨ Yuk rayakan momen istimewa ini bersama MDT Al-Ikhwan Margasari! 
 Saya sudah pasang overlay foto, giliran kamu sekarang`;
 
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
         try {
-          await navigator.share({
-            title: shareTitle,
-            text: shareText,
-            files: [file],
-            url: 'https://mdt-alikhwann.github.io/hari-santri/',
-          });
+          await navigator.share({ title: shareTitle, text: shareText, files: [file], url: 'https://mdt-alikhwann.github.io/hari-santri/' });
         } catch (err) {
           console.warn('Share dibatalkan:', err);
         }
       } else {
-        const shareUrl = 'https://mdt-alikhwann.github.io/hari-santri/';
-        const fallbackText = `${shareText}\n\n${shareUrl}`;
-        if (navigator.share) {
-          try {
-            await navigator.share({
-              title: shareTitle,
-              text: fallbackText,
-              url: shareUrl,
-            });
-          } catch (err) {
-            console.warn('Share dibatalkan:', err);
-          }
-        } else {
-          alert('Browser tidak mendukung fitur bagikan langsung. Silakan download manual.');
-        }
+        alert('Browser tidak mendukung fitur bagikan langsung. Silakan download manual.');
+      }
+    });
+
+    // Auto Load dari LocalStorage
+    window.addEventListener('load', () => {
+      const saved = localStorage.getItem('userImage');
+      if (saved) {
+        const img = new Image();
+        img.onload = () => { userImg = img; draw(); };
+        img.src = saved;
       }
     });
   </script>
 </body>
-    </html>
+</html>
