@@ -138,7 +138,7 @@
     <div class="text-muted small">MDT Al-Ikhwan Margasari Sidareja</div>
 <!-- Tombol Musik Hari Santri -->
 <button id="musicBtn" class="btn btn-outline-success btn-sm mt-3 px-5">
-  <i class="bi bi-play-fill"></i> Putar Musik
+  <i class="bi bi-play-fill"></i> Putar Mars Santri
 </button>
 
 <!-- Audio (tidak autoplay) -->
@@ -412,7 +412,7 @@ let isPlaying = false;
 // Saat tombol musik diklik
 musicBtn.addEventListener("click", () => {
   if (!hsn.src) {
-    hsn.src = "assets/music/hsn.mp3"; // ganti path sesuai lokasi file kamu
+    hsn.src = "hsn.mp3"; // ganti path sesuai lokasi file kamu
     hsn.load();
   }
 
