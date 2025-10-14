@@ -121,6 +121,7 @@
 }
     /* Animasi disc berputar */
 .spin {
+  display :inline-block;
   animation: spin 2.5s linear infinite;
 }
 
@@ -137,12 +138,15 @@
     <h2 class="mb-1 fw-bold text-gradient">Hari Santri Nasional <span class="year"></span></h2>
     <div class="text-muted small">MDT Al-Ikhwan Margasari Sidareja</div>
 <!-- Tombol Musik Hari Santri -->
-<button id="musicBtn" class="btn btn-outline-success btn-sm mt-3 px-5">
-  <i class="bi bi-play-fill"></i> Putar Mars Santri
+<!-- Tombol Musik Hari Santri -->
+<button id="musicBtn" class="btn btn-outline-success btn-sm mt-3 px-5 d-flex align-items-center justify-content-center gap-2">
+  <i id="musicIcon" class="bi bi-play-fill"></i>
+  <span id="musicText">Putar Mars Santri</span>
 </button>
 
-<!-- Audio (tidak autoplay) -->
+<!-- Audio -->
 <audio id="hsn" preload="metadata" loop></audio>
+
     <p class="mt-3 small text-muted mb-1">Upload selfie terbaikmu disini</p>
     <div class="mb-3 mt-1 w-75 mx-auto text-center">
       <input type="file" id="uploadtwb" class="form-control fs-sm" accept="image/*">
@@ -403,9 +407,12 @@ Saya sudah pasang overlay foto, giliran kamu sekarang`;
       }
     });
     // ===============================
+// ===============================
 // 🎵 Musik Hari Santri
 // ===============================
 const musicBtn = document.getElementById("musicBtn");
+const musicIcon = document.getElementById("musicIcon");
+const musicText = document.getElementById("musicText");
 const hsn = document.getElementById("hsn");
 let isPlaying = false;
 
@@ -417,14 +424,18 @@ musicBtn.addEventListener("click", () => {
   }
 
   if (!isPlaying) {
-    hsn.volume = 0.5; // volume nyaman untuk mobile
+    hsn.volume = 0.5;
     hsn.play();
     isPlaying = true;
-    musicBtn.innerHTML = '<i class="bi bi-disc spin"></i> Lagu Diputar';
+
+    musicIcon.className = "bi bi-disc spin";
+    musicText.textContent = "Lagu Diputar";
   } else {
     hsn.pause();
     isPlaying = false;
-    musicBtn.innerHTML = '<i class="bi bi-play-fill"></i> Play Mars Santri';
+
+    musicIcon.className = "bi bi-play-fill";
+    musicText.textContent = "Putar Mars Santri";
   }
 });
   </script>
