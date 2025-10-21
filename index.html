@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <meta property="og:title" content="Hari Santri Nasional 2025">
   <meta property="og:description" content="Ayo rayakan dan meriahkan momen penuh berkah ini bersama MDT Al-Ikhwan Margasari. Klik untuk membuat twibbon.">
-  <meta property="og:image" content="https://raw.githubusercontent.com/mdt-alikhwann/hari-santri/refs/heads/main/hsn2025.png">
+  <meta property="og:image" content="https://cdn.jsdelivr.net/gh/mdt-alikhwann/hari-santri@main/hsn2025.png">
   <meta property="og:type" content="website">
   <title>Twibbon Hari Santri</title>
 
@@ -130,6 +130,7 @@
     transform: rotate(360deg);
   }
 }
+.hsn2025 img{width: 50px; height: auto;}
   </style>
 </head>
 
@@ -148,11 +149,15 @@
 <!-- Audio -->
 <audio id="hsn" preload="metadata" loop></audio>
 
-    <p class="mt-3 small text-muted mb-1">Upload selfie terbaikmu disini</p>
+    <p class="mt-3 small text-muted mb-1">Pilih template & Upload selfie terbaikmu disini</p>
     <div class="mb-3 mt-1 w-75 mx-auto text-center">
       <input type="file" id="uploadtwb" class="form-control fs-sm" accept="image/*">
     </div>
-
+    <div class="hsn2025 d-flex flex-wrap justify-content-center gap-4 mb-3 mt-4 bg-light rounded-pill py-2">
+      <img id="template1" src="https://cdn.jsdelivr.net/gh/mdt-alikhwann/hari-santri@main/hsn2.png" alt="Hari Santri" class="img-thumbnail">
+      <img id="template2" src="https://cdn.jsdelivr.net/gh/mdt-alikhwann/hari-santri@main/hsn3.png" alt="Hari Santri" class="img-thumbnail">
+      <img id="template3" src="https://cdn.jsdelivr.net/gh/mdt-alikhwann/hari-santri@main/hsn2025.png" alt="Hari Santri" class="img-thumbnail">
+    </div>
     <canvas class="fade-up" id="canvas" width="1620" height="1620"></canvas>
 
     <!-- Kontrol tambahan -->
@@ -219,10 +224,41 @@
     const downloadBtn = document.getElementById('download');
     const shareBtn = document.getElementById('share');
 
-    const frame = new Image();
-frame.src = 'hsn2025.png';
+// === FRAME / TEMPLATE HANDLER ===
+const frame = new Image();
 let frameReady = false;
-frame.onload = () => { frameReady = true; draw(); };
+
+// Fungsi untuk mengganti template
+function setTemplate(src, highlightEl = null) {
+  frameReady = false;
+  frame.crossOrigin = "anonymous";
+  frame.src = src;
+  frame.onload = () => {
+    frameReady = true;
+    draw();
+  };
+
+  // Hapus highlight dari semua template
+  document.querySelectorAll('.hsn2025 img').forEach(img => {
+    img.classList.remove('border-success', 'border-3', 'shadow');
+  });
+
+  // Tambahkan highlight ke template aktif
+  if (highlightEl) {
+    highlightEl.classList.add('border-success', 'border-3', 'shadow');
+  }
+}
+
+// Tambahkan event klik pada semua template
+document.querySelectorAll('.hsn2025 img').forEach(img => {
+  img.addEventListener('click', () => setTemplate(img.src, img));
+});
+
+// === Template default (misal template3) ===
+const defaultTemplate = document.getElementById('template2');
+if (defaultTemplate) {
+  setTemplate(defaultTemplate.src, defaultTemplate);
+}
 
 let userImg = null;
 let imgX = 0, imgY = 0;
@@ -238,6 +274,7 @@ uploadtwb.addEventListener('change', (e) => {
   const reader = new FileReader();
   reader.onload = (ev) => {
     const img = new Image();
+    img.crossOrigin = "anonymous";
     img.onload = () => {
       userImg = img;
       imgScale = Math.max(canvas.width / img.width, canvas.height / img.height);
@@ -373,20 +410,42 @@ downloadBtn.addEventListener('click', () => {
   document.getElementById('previewImage').src = dataURL;
   const previewModal = new bootstrap.Modal(document.getElementById('previewModal'));
   previewModal.show();
-  
-  // Tambahkan event listener ke tombol OK di modal
+
   const confirmBtn = document.getElementById('confirmDownload');
   confirmBtn.onclick = () => {
-    // Proses download dijalankan di sini
+    const hdDataURL = generateHDImage(); // render ulang versi tajam
     const link = document.createElement('a');
     link.download = 'HSN MDT AL-IKHWAN.png';
-    link.href = dataURL;
+    link.href = hdDataURL;
     link.click();
-    
-    // Tutup modal setelah download
     previewModal.hide();
   };
 });
+
+// === Fungsi render versi jernih (HD) ===
+function generateHDImage() {
+  const scale = 3; // ubah ke 4 kalau mau lebih tajam lagi
+  const tempCanvas = document.createElement('canvas');
+  tempCanvas.width = canvas.width * scale;
+  tempCanvas.height = canvas.height * scale;
+  const tempCtx = tempCanvas.getContext('2d');
+  tempCtx.scale(scale, scale);
+
+  // Gambar ulang konten ke canvas HD
+  if (userImg) {
+    tempCtx.save();
+    tempCtx.translate(imgX, imgY);
+    tempCtx.rotate(imgRotation);
+    tempCtx.scale(flipped ? -imgScale : imgScale, imgScale);
+    tempCtx.filter = `brightness(${brightness}) contrast(${contrast})`;
+    tempCtx.drawImage(userImg, -userImg.width / 2, -userImg.height / 2);
+    tempCtx.restore();
+  }
+
+  if (frameReady) tempCtx.drawImage(frame, 0, 0, canvas.width, canvas.height);
+  
+  return tempCanvas.toDataURL('image/png', 1.0);
+}
 
     // Share Button
     shareBtn.addEventListener('click', async () => {
